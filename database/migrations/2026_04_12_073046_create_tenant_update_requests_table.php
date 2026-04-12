@@ -11,14 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rental_contracts', function (Blueprint $table) {
+        Schema::create('tenant_update_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tenant_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('room_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('owner_id')->constrained('users')->cascadeOnDelete();
-            $table->date('start_date');
-            $table->date('end_date');
-            $table->string('status')->default('active');
+
+            $table->string('field_name');
+            $table->text('old_value')->nullable();
+            $table->text('new_value');
+
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+
+            $table->timestamp('approved_at')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('rental_contracts');
+        Schema::dropIfExists('tenant_update_requests');
     }
 };

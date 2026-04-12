@@ -15,14 +15,17 @@ class AuthController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
-            'role' => 'required|in:owner,tenant'
+            'role' => 'required|in:owner,tenant',
+            'phone' => 'required'
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role
+            // 'role' => 'tenant' --- SEMENTARA KU COMMAND ---
+            'role' => $request->role,
+            'phone' => $request->phone
         ]);
 
         return response()->json([

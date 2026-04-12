@@ -11,51 +11,50 @@ use Illuminate\Support\Facades\Hash;
 class TenantController extends Controller
 {
     // GET /tenants
-    public function index()
+    public function index(Request $request)
     {
-        return Tenant::with('user')->get();
+        $tenants = Tenant::with('user')
+            ->where('owner_id', $request->user()->id)
+            ->get();
+
+        return response()->json([
+            'message' => 'Tenants fetched successfully',
+            'data' => $tenants
+        ]);
     }
 
-    // POST /tenants (tambah tenant)
+    // POST /tenants
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'phone' => 'required',
+            'user_id' => 'required|exists:users,id',
             'address' => 'required'
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'tenant'
-        ]);
-
         $tenant = Tenant::create([
-            'user_id' => $user->id,
-            'phone' => $request->phone,
+            'user_id' => $request->user_id,
+            'owner_id' => $request->user()->id,
             'address' => $request->address
         ]);
 
         return response()->json([
-            'message' => 'Tenant created',
+            'message' => 'Tenant added',
             'data' => $tenant
         ]);
     }
 
     // GET /tenants/{id}
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        return Tenant::with('user')->findOrFail($id);
+        $tenant = Tenant::with('user')->where('owner_id', $request->user()->id)->findOrFail($id);
+
+        return response()->json($tenant);
     }
 
-    // PUT /tenants/{id} (edit tenant)
+    // PUT /tenants/{id}
     public function update(Request $request, $id)
     {
-        $tenant = Tenant::findOrFail($id);
+        $tenant = Tenant::where('owner_id', $request->user()->id)->findOrFail($id);
         $user = $tenant->user;
 
         $user->update([
@@ -75,9 +74,9 @@ class TenantController extends Controller
     }
 
     // DELETE /tenants/{id}
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $tenant = Tenant::findOrFail($id);
+        $tenant = Tenant::where('owner_id', $request->user()->id)->findOrFail($id);
         $tenant->user->delete();
         $tenant->delete();
 
