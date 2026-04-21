@@ -18,11 +18,17 @@ class AuthController extends Controller
             'role' => 'required|in:owner,tenant'
         ]);
 
+        $verificationStatus = $request->role === 'owner'
+            ? 'pending'
+            : 'approved';
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role
+            'role' => $request->role,
+            'phone' => $request->phone,
+            'verification_status' => $verificationStatus
         ]);
 
         return response()->json([
@@ -40,21 +46,27 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        // cek user
         if (!$user) {
             return response()->json([
                 'message' => 'User not found'
             ], 404);
         }
 
-        // cek password
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
                 'message' => 'Wrong password'
             ], 401);
         }
 
-        // buat token
+        if (
+            $user->role === 'owner' &&
+            $user->verification_status !== 'approved'
+        ) {
+            return response()->json([
+                'message' => 'Owner account is not verified yet'
+            ], 403);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

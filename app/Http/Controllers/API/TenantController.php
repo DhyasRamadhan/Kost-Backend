@@ -20,30 +20,36 @@ class TenantController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'phone' => 'required',
-            'address' => 'required'
+            'user_id'  => 'required|exists:users,id',
+            'address'  => 'required|string|max:255'
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'tenant'
-        ]);
+        $user = User::findOrFail($request->user_id);
+
+        if ($user->role !== 'tenant') {
+            return response()->json([
+                'message' => 'Selected user is not a tenant account'
+            ], 422);
+        }
+
+        $alreadyTenant = Tenant::where('user_id', $user->id)->exists();
+
+        if ($alreadyTenant) {
+            return response()->json([
+                'message' => 'User already registered as tenant'
+            ], 422);
+        }
 
         $tenant = Tenant::create([
-            'user_id' => $user->id,
-            'phone' => $request->phone,
-            'address' => $request->address
+            'user_id'  => $user->id,
+            'owner_id' => $request->user()->id,
+            'address'  => $request->address
         ]);
 
         return response()->json([
-            'message' => 'Tenant created',
-            'data' => $tenant
-        ]);
+            'message' => 'Tenant added successfully',
+            'data'    => $tenant
+        ], 201);
     }
 
     // GET /tenants/{id}
