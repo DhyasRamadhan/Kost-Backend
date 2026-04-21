@@ -8,12 +8,17 @@ class Tenant extends Model
 {
     protected $fillable = [
         'user_id',
-        'phone',
-        'address'
+        'address',
+        'owner_id'
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_id');
     }
 }
