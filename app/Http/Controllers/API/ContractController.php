@@ -27,7 +27,8 @@ class ContractController extends Controller
             'tenant_id' => 'required|exists:tenants,id',
             'room_id' => 'required|exists:rooms,id',
             'start_date' => 'required|date',
-            'end_date' => 'required|date'
+            'end_date' => 'required|date',
+            'monthly_rent' => 'required|numeric|min:0'
         ]);
 
         $user = $request->user();
@@ -50,6 +51,7 @@ class ContractController extends Controller
             'owner_id' => $user->id,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
+            'monthly_rent' => $request->monthly_rent,
             'status' => 'active'
         ]);
 

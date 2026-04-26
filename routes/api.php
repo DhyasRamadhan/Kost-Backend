@@ -7,6 +7,8 @@ use App\Http\Controllers\API\TenantUpdateRequestController;
 use App\Http\Controllers\API\ContractController;
 use App\Http\Controllers\API\TenantController;
 use App\Http\Controllers\API\OwnerVerificationController;
+use App\Http\Controllers\API\PaymentController;
+use App\Http\Controllers\API\PaymentCallbackController;
 
 // Authentication
 Route::post('/register', [AuthController::class, 'register']);
@@ -38,4 +40,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('rooms', RoomController::class);
     Route::apiResource('tenants', TenantController::class);
     Route::apiResource('contracts', ContractController::class)->only(['index', 'store', 'show', 'destroy']);
+
+    // Payment
+    Route::post('/payments/create', [PaymentController::class, 'create']);
 });
+
+// Payment Callback
+Route::post('/payments/callback', [PaymentCallbackController::class, 'handle']);
+
+// Dummy Payment Data
+// 4811 1111 1111 1114
+// CVV: 123
+// Exp: bebas masa depan
+// OTP: 112233
