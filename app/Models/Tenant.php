@@ -21,4 +21,14 @@ class Tenant extends Model
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
+
+    public function contracts()
+    {
+        return $this->hasMany(RentalContract::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 }

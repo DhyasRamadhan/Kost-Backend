@@ -20,4 +20,14 @@ class Payment extends Model
     {
         return $this->belongsTo(RentalContract::class, 'contract_id');
     }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class, 'tenant_id');
+    }
 }
