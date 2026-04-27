@@ -16,6 +16,12 @@ class Payment extends Model
         'midtrans_order_id'
     ];
 
+    protected $casts = [
+        'amount' => 'decimal:2',
+        'payment_date' => 'date',
+        'paid_at' => 'datetime',
+    ];
+
     public function contract()
     {
         return $this->belongsTo(RentalContract::class, 'contract_id');

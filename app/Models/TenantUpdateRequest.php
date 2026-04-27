@@ -15,6 +15,10 @@ class TenantUpdateRequest extends Model
         'approved_at'
     ];
 
+    protected $casts = [
+        'approved_at' => 'datetime',
+    ];
+
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);

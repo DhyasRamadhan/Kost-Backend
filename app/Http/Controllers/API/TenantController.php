@@ -9,13 +9,11 @@ use Illuminate\Http\Request;
 
 class TenantController extends Controller
 {
-    // GET /tenants
     public function index()
     {
         return Tenant::with('user')->get();
     }
 
-    // POST /tenants (tambah tenant)
     public function store(Request $request)
     {
         $request->validate([
@@ -51,13 +49,11 @@ class TenantController extends Controller
         ], 201);
     }
 
-    // GET /tenants/{id}
     public function show($id)
     {
         return Tenant::with('user')->findOrFail($id);
     }
 
-    // PUT /tenants/{id} (edit tenant)
     public function update(Request $request, $id)
     {
         $tenant = Tenant::findOrFail($id);
@@ -79,7 +75,6 @@ class TenantController extends Controller
         ]);
     }
 
-    // DELETE /tenants/{id}
     public function destroy($id)
     {
         $tenant = Tenant::findOrFail($id);

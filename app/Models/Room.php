@@ -13,6 +13,10 @@ class Room extends Model
         'status'
     ];
 
+    protected $casts = [
+        'price' => 'decimal:2',
+    ];
+
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');

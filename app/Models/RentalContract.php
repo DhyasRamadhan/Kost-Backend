@@ -18,6 +18,12 @@ class RentalContract extends Model
         'status'
     ];
 
+    protected $casts = [
+        'monthly_rent' => 'decimal:2',
+        'start_date' => 'date',
+        'end_date' => 'date',
+    ];
+
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
