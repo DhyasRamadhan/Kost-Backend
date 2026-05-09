@@ -62,7 +62,7 @@ class User extends Authenticatable
         return $this->hasMany(Tenant::class, 'owner_id');
     }
 
-    public function tenantsProfile()
+    public function tenantProfile()
     {
         return $this->hasOne(Tenant::class, 'user_id');
     }

@@ -9,6 +9,7 @@ use App\Http\Controllers\API\TenantController;
 use App\Http\Controllers\API\OwnerVerificationController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\PaymentCallbackController;
+use App\Http\Controllers\API\DashboardController;
 
 // Authentication
 Route::post('/register', [AuthController::class, 'register']);
@@ -42,7 +43,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('contracts', ContractController::class)->only(['index', 'store', 'show', 'destroy']);
 
     // Payment
+    Route::get('/payments', [PaymentController::class, 'index']);
     Route::post('/payments/create', [PaymentController::class, 'create']);
+    Route::post('/payments/{id}/cancel', [PaymentController::class, 'cancel']);
+    Route::get('/tenant/payments', [PaymentController::class, 'tenantPayments']);
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 });
 
 // Payment Callback

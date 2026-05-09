@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -30,6 +31,12 @@ class AuthController extends Controller
             'phone' => $request->phone,
             'verification_status' => $verificationStatus
         ]);
+
+        if ($user->role === 'tenant') {
+            Tenant::create([
+                'user_id' => $user->id
+            ]);
+        }
 
         return response()->json([
             'message' => 'Register success',

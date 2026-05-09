@@ -10,6 +10,24 @@ use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
+    public function index(Request $request)
+    {
+        $payments = Payment::with([
+            'tenant.user',
+            'contract.room'
+        ])
+            ->where(
+                'owner_id',
+                $request->user()->id
+            )
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'data' => $payments
+        ]);
+    }
+
     public function create(Request $request)
     {
         MidtransService::init();
@@ -47,6 +65,67 @@ class PaymentController extends Controller
             'message' => 'Payment created',
             'data' => $payment,
             'snap_token' => $snapToken
+        ]);
+    }
+
+    public function tenantPayments(Request $request)
+    {
+        $tenant = $request->user()
+            ->tenantProfile;
+
+        if (!$tenant) {
+
+            return response()->json([
+                'message' =>
+                'Tenant profile not found'
+            ], 404);
+        }
+
+        $payments = Payment::with([
+            'contract.room'
+        ])
+            ->where(
+                'tenant_id',
+                $tenant->id
+            )
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'data' => $payments
+        ]);
+    }
+
+    public function cancel(Request $request, $id)
+    {
+        $payment = Payment::where(
+            'owner_id',
+            $request->user()->id
+        )->findOrFail($id);
+
+        if ($payment->status === 'paid') {
+
+            return response()->json([
+                'message' =>
+                'Paid payment cannot be cancelled'
+            ], 400);
+        }
+
+        if ($payment->status === 'cancelled') {
+
+            return response()->json([
+                'message' =>
+                'Payment already cancelled'
+            ], 400);
+        }
+
+        $payment->update([
+            'status' => 'cancelled'
+        ]);
+
+        return response()->json([
+            'message' => 'Payment cancelled',
+            'data' => $payment
         ]);
     }
 }
