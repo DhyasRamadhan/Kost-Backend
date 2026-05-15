@@ -10,6 +10,8 @@ use App\Http\Controllers\API\OwnerVerificationController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\PaymentCallbackController;
 use App\Http\Controllers\API\DashboardController;
+use App\Http\Controllers\API\ProfileController;
+use App\Http\Controllers\API\ElectricityUsageController;
 
 // Authentication
 Route::post('/register', [AuthController::class, 'register']);
@@ -22,6 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Owner Verification
     Route::prefix('owners')->group(function () {
         Route::get('/pending', [OwnerVerificationController::class, 'pending']);
+        Route::get('/history', [OwnerVerificationController::class, 'history']);
         Route::post('/{id}/approve', [OwnerVerificationController::class, 'approve']);
         Route::post('/{id}/reject', [OwnerVerificationController::class, 'reject']);
     });
@@ -46,10 +49,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/payments', [PaymentController::class, 'index']);
     Route::post('/payments/create', [PaymentController::class, 'create']);
     Route::post('/payments/{id}/cancel', [PaymentController::class, 'cancel']);
+    Route::get('/payments/{id}/token', [PaymentController::class, 'getToken']);
     Route::get('/tenant/payments', [PaymentController::class, 'tenantPayments']);
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index']);
+
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'show']);
+
+    // Electricity
+    Route::apiResource('electricity', ElectricityUsageController::class);
 });
 
 // Payment Callback

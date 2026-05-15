@@ -20,6 +20,18 @@ class OwnerVerificationController extends Controller
         ]);
     }
 
+    public function history()
+    {
+        $owners = User::where('role', 'owner')
+            ->whereIn('verification_status', ['approved', 'rejected'])
+            ->get();
+
+        return response()->json([
+            'message' => 'History owners fetched',
+            'data' => $owners
+        ]);
+    }
+
     public function approve($id)
     {
         $user = User::where('role', 'owner')->findOrFail($id);

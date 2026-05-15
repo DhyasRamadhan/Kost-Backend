@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class TenantController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         return Tenant::with('user')->get();
     }

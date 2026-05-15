@@ -47,11 +47,13 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required',
             'password' => 'required'
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $loginField = filter_var($request->email, FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
+
+        $user = User::where($loginField, $request->email)->first();
 
         if (!$user) {
             return response()->json([

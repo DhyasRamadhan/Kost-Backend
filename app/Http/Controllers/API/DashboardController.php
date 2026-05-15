@@ -72,6 +72,13 @@ class DashboardController extends Controller
         return response()->json([
             'role' => 'owner',
 
+            'owner' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'verification_status' => $user->verification_status,
+            ],
+
             'rooms' => [
                 'total' => $totalRooms,
                 'occupied' => $occupiedRooms,

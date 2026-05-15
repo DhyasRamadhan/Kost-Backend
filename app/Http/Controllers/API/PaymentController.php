@@ -128,4 +128,48 @@ class PaymentController extends Controller
             'data' => $payment
         ]);
     }
+
+    public function getToken(Request $request, $id)
+    {
+        $tenant = $request->user()->tenantProfile;
+        if (!$tenant) {
+            return response()->json(['message' => 'Tenant profile not found'], 404);
+        }
+
+        $payment = Payment::where('tenant_id', $tenant->id)->findOrFail($id);
+
+        if ($payment->status === 'paid') {
+            return response()->json(['message' => 'Payment already paid'], 400);
+        }
+
+        MidtransService::init();
+
+        // Generate a fresh order_id to avoid Midtrans conflict on re-request
+        $newOrderId = 'PAY-' . time() . '-' . rand(100, 999);
+        $payment->update(['midtrans_order_id' => $newOrderId]);
+
+        try {
+            $snapToken = \Midtrans\Snap::getSnapToken([
+                'transaction_details' => [
+                    'order_id' => $newOrderId,
+                    'gross_amount' => (int) $payment->amount
+                ],
+                'customer_details' => [
+                    'first_name' => $request->user()->name,
+                    'email' => $request->user()->email
+                ]
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'snap_token' => $snapToken,
+                'redirect_url' => 'https://app.sandbox.midtrans.com/snap/v2/vtweb/' . $snapToken
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate token: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

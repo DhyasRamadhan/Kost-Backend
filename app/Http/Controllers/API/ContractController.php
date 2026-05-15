@@ -33,8 +33,7 @@ class ContractController extends Controller
 
         $user = $request->user();
 
-        $tenant = Tenant::where('owner_id', $user->id)
-            ->findOrFail($request->tenant_id);
+        $tenant = Tenant::findOrFail($request->tenant_id);
 
         $room = Room::where('owner_id', $user->id)
             ->findOrFail($request->room_id);
