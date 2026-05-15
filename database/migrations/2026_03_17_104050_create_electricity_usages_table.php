@@ -14,12 +14,16 @@ return new class extends Migration
         Schema::create('electricity_usages', function (Blueprint $table) {
             $table->id();
             $table->foreignId('room_id')->constrained()->cascadeOnDelete();
-            $table->integer('token_amount');
+            $table->foreignId('owner_id')->constrained('users')->cascadeOnDelete();
+            $table->integer('token_amount')->nullable();
+            $table->decimal('meter_start', 10, 2)->nullable();
+            $table->decimal('meter_end', 10, 2)->nullable();
+            $table->decimal('usage_kwh', 10, 2)->nullable();
+            $table->decimal('estimate_bill', 12, 2)->nullable();
             $table->date('usage_date');
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */

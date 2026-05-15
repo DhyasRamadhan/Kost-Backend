@@ -47,7 +47,33 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function rooms()
+    {
+        return $this->hasMany(Room::class, 'owner_id');
+    }
+
+    public function tenantsManaged()
+    {
+        return $this->hasMany(Tenant::class, 'owner_id');
+    }
+
+    public function tenantProfile()
+    {
+        return $this->hasOne(Tenant::class, 'user_id');
+    }
+
+    public function contracts()
+    {
+        return $this->hasMany(RentalContract::class, 'owner_id');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'owner_id');
     }
 }
