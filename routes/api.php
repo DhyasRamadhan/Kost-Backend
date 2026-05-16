@@ -32,12 +32,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Tenant Update Requests
     Route::prefix('tenant')->group(function () {
         Route::post('/update-request', [TenantUpdateRequestController::class, 'store']);
-
-        Route::middleware('is_owner')->group(function () {
-            Route::get('/update-requests', [TenantUpdateRequestController::class, 'index']);
-            Route::post('/update-requests/{id}/approve', [TenantUpdateRequestController::class, 'approve']);
-            Route::post('/update-requests/{id}/reject', [TenantUpdateRequestController::class, 'reject']);
-        });
+        Route::get('/update-requests', [TenantUpdateRequestController::class, 'index']);
+        Route::post('/update-requests/{id}/approve', [TenantUpdateRequestController::class, 'approve']);
+        Route::post('/update-requests/{id}/reject', [TenantUpdateRequestController::class, 'reject']);
     });
 
     // Resources
@@ -70,3 +67,6 @@ Route::post('/payments/callback', [PaymentCallbackController::class, 'handle']);
 // CVV: 123
 // Exp: bebas masa depan
 // OTP: 112233
+
+// Command for running Ngrok
+// ngrok http 8000

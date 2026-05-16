@@ -22,7 +22,7 @@ class TenantUpdateRequestController extends Controller
         TenantUpdateRequest::create([
             'tenant_id' => $tenant->id,
             'field_name' => $request->field_name,
-            'old_value' => $tenant->{$request->field_name},
+            'old_value' => $request->field_name === 'phone' ? $tenant->user->phone : $tenant->{$request->field_name},
             'new_value' => $request->new_value,
             'status' => 'pending'
         ]);
@@ -36,9 +36,13 @@ class TenantUpdateRequestController extends Controller
     {
         $ownerId = $request->user()->id;
 
-        $requests = TenantUpdateRequest::with('tenant.user')
-            ->whereHas('tenant', function ($query) use ($ownerId) {
+        $requests = TenantUpdateRequest::with([
+            'tenant.user'
+        ])
+            ->whereHas('tenant.contracts', function ($query) use ($ownerId) {
+
                 $query->where('owner_id', $ownerId);
+
             })
             ->latest()
             ->get();
@@ -53,17 +57,28 @@ class TenantUpdateRequestController extends Controller
         $ownerId = $request->user()->id;
 
         $updateRequest = TenantUpdateRequest::with('tenant')
-            ->whereHas('tenant', function ($query) use ($ownerId) {
+            ->whereHas('tenant.contracts', function ($query) use ($ownerId) {
                 $query->where('owner_id', $ownerId);
             })
             ->findOrFail($id);
 
+        if ($updateRequest->status !== 'pending') {
+            return response()->json([
+                'message' => 'Request already processed'
+            ], 400);
+        }
+
         $tenant = $updateRequest->tenant;
 
-        // Update the tenant's actual field
-        if (in_array($updateRequest->field_name, ['phone', 'address'])) {
+        if ($updateRequest->field_name === 'phone') {
+            $tenant->user->update([
+                'phone' => $updateRequest->new_value
+            ]);
+        }
+
+        if ($updateRequest->field_name === 'address') {
             $tenant->update([
-                $updateRequest->field_name => $updateRequest->new_value
+                'address' => $updateRequest->new_value
             ]);
         }
 
@@ -82,9 +97,15 @@ class TenantUpdateRequestController extends Controller
     {
         $ownerId = $request->user()->id;
 
-        $updateRequest = TenantUpdateRequest::whereHas('tenant', function ($query) use ($ownerId) {
+        $updateRequest = TenantUpdateRequest::whereHas('tenant.contracts', function ($query) use ($ownerId) {
             $query->where('owner_id', $ownerId);
         })->findOrFail($id);
+
+        if ($updateRequest->status !== 'pending') {
+            return response()->json([
+                'message' => 'Request already processed'
+            ], 400);
+        }
 
         $updateRequest->update([
             'status' => 'rejected'

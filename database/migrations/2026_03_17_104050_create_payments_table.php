@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -18,13 +17,8 @@ return new class extends Migration
             $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
             $table->decimal('amount', 12, 2);
             $table->date('payment_date');
-            $table->enum('status', [
-                'pending',
-                'paid',
-                'failed',
-                'expired',
-                'cancelled'
-            ])->default('pending');
+            $table->date('due_date')->nullable();
+            $table->enum('status', ['pending', 'paid', 'failed', 'expired', 'cancelled'])->default('pending');
             $table->string('midtrans_order_id')->nullable()->unique();
             $table->string('midtrans_transaction_id')->nullable()->unique();
             $table->string('payment_type')->nullable();
