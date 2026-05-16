@@ -78,7 +78,6 @@ class ContractController extends Controller
         $contract = RentalContract::where('owner_id', $request->user()->id)
             ->findOrFail($id);
 
-        // balikin status room
         $contract->room->update([
             'status' => 'available'
         ]);

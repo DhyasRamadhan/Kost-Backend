@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\RentalContract;
 use App\Services\MidtransService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -47,7 +48,8 @@ class PaymentController extends Controller
             'amount' => $contract->monthly_rent,
             'payment_date' => now(),
             'status' => 'pending',
-            'midtrans_order_id' => $orderId
+            'midtrans_order_id' => $orderId,
+            'due_date' => Carbon::now()->endOfMonth(),
         ]);
 
         $snapToken = \Midtrans\Snap::getSnapToken([
@@ -144,7 +146,6 @@ class PaymentController extends Controller
 
         MidtransService::init();
 
-        // Generate a fresh order_id to avoid Midtrans conflict on re-request
         $newOrderId = 'PAY-' . time() . '-' . rand(100, 999);
         $payment->update(['midtrans_order_id' => $newOrderId]);
 

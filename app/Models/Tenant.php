@@ -17,11 +17,6 @@ class Tenant extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function owner()
-    {
-        return $this->belongsTo(User::class, 'owner_id');
-    }
-
     public function contracts()
     {
         return $this->hasMany(RentalContract::class);
@@ -30,5 +25,10 @@ class Tenant extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function updateRequests()
+    {
+        return $this->hasMany(TenantUpdateRequest::class);
     }
 }

@@ -57,11 +57,6 @@ class User extends Authenticatable
         return $this->hasMany(Room::class, 'owner_id');
     }
 
-    public function tenantsManaged()
-    {
-        return $this->hasMany(Tenant::class, 'owner_id');
-    }
-
     public function tenantProfile()
     {
         return $this->hasOne(Tenant::class, 'user_id');
@@ -75,5 +70,10 @@ class User extends Authenticatable
     public function payments()
     {
         return $this->hasMany(Payment::class, 'owner_id');
+    }
+
+    public function electricityUsages()
+    {
+        return $this->hasMany(ElectricityUsage::class, 'owner_id');
     }
 }
