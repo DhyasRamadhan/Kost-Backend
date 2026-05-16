@@ -26,4 +26,9 @@ class Room extends Model
     {
         return $this->hasMany(RentalContract::class);
     }
+
+    public function electricityUsages()
+    {
+        return $this->hasMany(ElectricityUsage::class);
+    }
 }
