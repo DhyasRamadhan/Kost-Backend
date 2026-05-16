@@ -16,7 +16,8 @@ class AuthController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
-            'role' => 'required|in:owner,tenant'
+            'role' => 'required|in:owner,tenant',
+            'phone' => 'required'
         ]);
 
         $verificationStatus = $request->role === 'owner'

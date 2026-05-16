@@ -4,14 +4,20 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class TenantController extends Controller
 {
     public function index(Request $request)
     {
-        return Tenant::with('user')->get();
+        $tenants = Tenant::with('user')
+            ->where('owner_id', $request->user()->id)
+            ->get();
+
+        return response()->json([
+            'message' => 'Tenants fetched successfully',
+            'data' => $tenants
+        ]);
     }
 
     public function store(Request $request)
@@ -51,12 +57,14 @@ class TenantController extends Controller
 
     public function show($id)
     {
-        return Tenant::with('user')->findOrFail($id);
+        $tenant = Tenant::with('user')->where('owner_id', $request->user()->id)->findOrFail($id);
+
+        return response()->json($tenant);
     }
 
     public function update(Request $request, $id)
     {
-        $tenant = Tenant::findOrFail($id);
+        $tenant = Tenant::where('owner_id', $request->user()->id)->findOrFail($id);
         $user = $tenant->user;
 
         $user->update([
@@ -77,7 +85,7 @@ class TenantController extends Controller
 
     public function destroy($id)
     {
-        $tenant = Tenant::findOrFail($id);
+        $tenant = Tenant::where('owner_id', $request->user()->id)->findOrFail($id);
         $tenant->user->delete();
         $tenant->delete();
 

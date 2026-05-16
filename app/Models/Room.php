@@ -10,7 +10,8 @@ class Room extends Model
         'owner_id',
         'room_number',
         'price',
-        'status'
+        'status',
+        'owner_id'
     ];
 
     protected $casts = [
