@@ -1,44 +1,72 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\RoomController;
 use App\Http\Controllers\API\TenantUpdateRequestController;
 use App\Http\Controllers\API\ContractController;
 use App\Http\Controllers\API\TenantController;
-
-// Delete if done
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
-Route::get('/test', function () {
-    return response()->json(['message' => 'API OK']);
-});
+use App\Http\Controllers\API\OwnerVerificationController;
+use App\Http\Controllers\API\PaymentController;
+use App\Http\Controllers\API\PaymentCallbackController;
+use App\Http\Controllers\API\DashboardController;
+use App\Http\Controllers\API\ProfileController;
+use App\Http\Controllers\API\ElectricityUsageController;
 
 // Authentication
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
-// Tenant Update Requests
-Route::middleware('auth:sanctum')->post('/tenant/update-request', [TenantUpdateRequestController::class, 'store']);
-Route::middleware(['auth:sanctum', 'is_owner'])->get('/tenant/update-requests', [TenantUpdateRequestController::class, 'index']);
-Route::middleware(['auth:sanctum', 'is_owner'])->post('/tenant/update-requests/{id}/approve', [TenantUpdateRequestController::class, 'approve']);
-Route::middleware(['auth:sanctum', 'is_owner'])->post('/tenant/update-requests/{id}/reject', [TenantUpdateRequestController::class, 'reject']);
-
-// Contract Management
 Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('contracts', ContractController::class)->only(['index', 'store', 'show', 'destroy']);
-});
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-// Room Management
-Route::middleware('auth:sanctum')->group(function () {
+    // Owner Verification
+    Route::prefix('owners')->group(function () {
+        Route::get('/pending', [OwnerVerificationController::class, 'pending']);
+        Route::get('/history', [OwnerVerificationController::class, 'history']);
+        Route::post('/{id}/approve', [OwnerVerificationController::class, 'approve']);
+        Route::post('/{id}/reject', [OwnerVerificationController::class, 'reject']);
+    });
+
+    // Tenant Update Requests
+    Route::prefix('tenant')->group(function () {
+        Route::post('/update-request', [TenantUpdateRequestController::class, 'store']);
+
+        Route::middleware('is_owner')->group(function () {
+            Route::get('/update-requests', [TenantUpdateRequestController::class, 'index']);
+            Route::post('/update-requests/{id}/approve', [TenantUpdateRequestController::class, 'approve']);
+            Route::post('/update-requests/{id}/reject', [TenantUpdateRequestController::class, 'reject']);
+        });
+    });
+
+    // Resources
     Route::apiResource('rooms', RoomController::class);
+    Route::apiResource('tenants', TenantController::class);
+    Route::apiResource('contracts', ContractController::class)->only(['index', 'store', 'show', 'destroy']);
+
+    // Payment
+    Route::get('/payments', [PaymentController::class, 'index']);
+    Route::post('/payments/create', [PaymentController::class, 'create']);
+    Route::post('/payments/{id}/cancel', [PaymentController::class, 'cancel']);
+    Route::get('/payments/{id}/token', [PaymentController::class, 'getToken']);
+    Route::get('/tenant/payments', [PaymentController::class, 'tenantPayments']);
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index']);
+
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'show']);
+
+    // Electricity
+    Route::apiResource('electricity', ElectricityUsageController::class);
 });
 
-// Tenant Management
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('tenants', TenantController::class);
-});
+// Payment Callback
+Route::post('/payments/callback', [PaymentCallbackController::class, 'handle']);
+
+// Dummy Payment Data
+// 4811 1111 1111 1114
+// CVV: 123
+// Exp: bebas masa depan
+// OTP: 112233

@@ -7,10 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Room extends Model
 {
     protected $fillable = [
+        'owner_id',
         'room_number',
         'price',
         'status',
         'owner_id'
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
     ];
 
     public function owner()

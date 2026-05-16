@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 
 class ContractController extends Controller
 {
-    // GET /contracts
     public function index(Request $request)
     {
         $contracts = RentalContract::with(['tenant.user', 'room'])
@@ -22,20 +21,19 @@ class ContractController extends Controller
         ]);
     }
 
-    // POST /contracts
     public function store(Request $request)
     {
         $request->validate([
             'tenant_id' => 'required|exists:tenants,id',
             'room_id' => 'required|exists:rooms,id',
             'start_date' => 'required|date',
-            'end_date' => 'required|date'
+            'end_date' => 'required|date',
+            'monthly_rent' => 'required|numeric|min:0'
         ]);
 
         $user = $request->user();
 
-        $tenant = Tenant::where('owner_id', $user->id)
-            ->findOrFail($request->tenant_id);
+        $tenant = Tenant::findOrFail($request->tenant_id);
 
         $room = Room::where('owner_id', $user->id)
             ->findOrFail($request->room_id);
@@ -52,6 +50,7 @@ class ContractController extends Controller
             'owner_id' => $user->id,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
+            'monthly_rent' => $request->monthly_rent,
             'status' => 'active'
         ]);
 
@@ -65,7 +64,6 @@ class ContractController extends Controller
         ]);
     }
 
-    // GET /contracts/{id}
     public function show(Request $request, $id)
     {
         $contract = RentalContract::with(['tenant.user', 'room'])
@@ -75,12 +73,12 @@ class ContractController extends Controller
         return response()->json($contract);
     }
 
-    // DELETE /contracts/{id}
     public function destroy(Request $request, $id)
     {
         $contract = RentalContract::where('owner_id', $request->user()->id)
             ->findOrFail($id);
 
+        // balikin status room
         $contract->room->update([
             'status' => 'available'
         ]);

@@ -19,6 +19,9 @@ return new class extends Migration
             $table->string('password');
             $table->string('role')->default('tenant');
             $table->string('phone')->nullable();
+            $table->string('verification_status')->default('approved');
+            $table->timestamp('verified_at')->nullable();
+            $table->text('rejected_reason')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

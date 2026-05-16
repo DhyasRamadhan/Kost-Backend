@@ -8,52 +8,51 @@ use Illuminate\Http\Request;
 
 class RoomController extends Controller
 {
-    // GET /rooms
     public function index(Request $request)
     {
         $rooms = Room::where('owner_id', $request->user()->id)->get();
 
-        return response()->json([
-            'message' => 'Rooms fetched successfully',
-            'data' => $rooms
-        ]);
+        return response()->json($rooms);
     }
 
-    // POST /rooms
     public function store(Request $request)
     {
         $request->validate([
-            'room_number' => 'required',
-            'price' => 'required|numeric',
-            'status' => 'in:available,occupied'
+            'room_number' => 'required|string|max:50',
+            'price' => 'required|numeric|min:0'
         ]);
 
         $room = Room::create([
+            'owner_id' => $request->user()->id,
             'room_number' => $request->room_number,
             'price' => $request->price,
-            'status' => $request->status ?? 'available',
-            'owner_id' => $request->user()->id
+            'status' => 'available'
         ]);
 
         return response()->json([
             'message' => 'Room created',
             'data' => $room
-        ]);
+        ], 201);
     }
 
-    // GET /rooms/{id}
     public function show(Request $request, $id)
     {
-        $room = Room::where('owner_id', $request->user()->id)->findOrFail($id);
+        $room = Room::where('owner_id', $request->user()->id)
+            ->findOrFail($id);
 
         return response()->json($room);
     }
 
-    // PUT /rooms/{id}
     public function update(Request $request, $id)
     {
-        $room = Room::where('owner_id', $request->user()->id)->findOrFail($id);
-        $room->update($request->only(['room_number', 'price', 'status']));
+        $room = Room::where('owner_id', $request->user()->id)
+            ->findOrFail($id);
+
+        $room->update($request->only([
+            'room_number',
+            'price',
+            'status'
+        ]));
 
         return response()->json([
             'message' => 'Room updated',
@@ -61,10 +60,11 @@ class RoomController extends Controller
         ]);
     }
 
-    // DELETE /rooms/{id}
     public function destroy(Request $request, $id)
     {
-        $room = Room::where('owner_id', $request->user()->id)->findOrFail($id);
+        $room = Room::where('owner_id', $request->user()->id)
+            ->findOrFail($id);
+
         $room->delete();
 
         return response()->json([

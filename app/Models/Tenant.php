@@ -8,8 +8,8 @@ class Tenant extends Model
 {
     protected $fillable = [
         'user_id',
-        'address',
-        'owner_id'
+        'owner_id',
+        'address'
     ];
 
     public function user()
@@ -20,5 +20,15 @@ class Tenant extends Model
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function contracts()
+    {
+        return $this->hasMany(RentalContract::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }
