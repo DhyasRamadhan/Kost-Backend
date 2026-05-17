@@ -5,7 +5,9 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\RentalContract;
+use App\Models\Tenant;
 use App\Services\MidtransService;
+use App\Services\FirebaseNotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -63,6 +65,25 @@ class PaymentController extends Controller
             ]
         ]);
 
+        $tenant = Tenant::with('user')
+            ->find($contract->tenant_id);
+
+        if (
+            $tenant &&
+            $tenant->user &&
+            $tenant->user->fcm_token
+        ) {
+
+            $firebase =
+                new FirebaseNotificationService();
+
+            $firebase->sendNotification(
+                $tenant->user->fcm_token,
+                'Tagihan Baru',
+                'Tagihan pembayaran baru telah tersedia.'
+            );
+        }
+
         return response()->json([
             'message' => 'Payment created',
             'data' => $payment,
@@ -79,7 +100,7 @@ class PaymentController extends Controller
 
             return response()->json([
                 'message' =>
-                'Tenant profile not found'
+                    'Tenant profile not found'
             ], 404);
         }
 
@@ -109,7 +130,7 @@ class PaymentController extends Controller
 
             return response()->json([
                 'message' =>
-                'Paid payment cannot be cancelled'
+                    'Paid payment cannot be cancelled'
             ], 400);
         }
 
@@ -117,7 +138,7 @@ class PaymentController extends Controller
 
             return response()->json([
                 'message' =>
-                'Payment already cancelled'
+                    'Payment already cancelled'
             ], 400);
         }
 

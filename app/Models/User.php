@@ -26,6 +26,7 @@ class User extends Authenticatable
         'verification_status',
         'verified_at',
         'rejected_reason',
+        'fcm_token',
     ];
 
     /**
