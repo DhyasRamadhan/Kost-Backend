@@ -76,6 +76,12 @@ class AuthController extends Controller
             ], 403);
         }
 
+        if ($request->filled('fcm_token')) {
+            $user->update([
+                'fcm_token' => $request->fcm_token
+            ]);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

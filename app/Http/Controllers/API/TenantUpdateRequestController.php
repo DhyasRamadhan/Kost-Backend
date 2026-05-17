@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\TenantUpdateRequest;
 use App\Models\Tenant;
+use App\Models\RentalContract;
+use App\Services\FirebaseNotificationService;
 
 class TenantUpdateRequestController extends Controller
 {
@@ -26,6 +28,33 @@ class TenantUpdateRequestController extends Controller
             'new_value' => $request->new_value,
             'status' => 'pending'
         ]);
+
+        $contract = RentalContract::where(
+            'tenant_id',
+            $tenant->id
+        )
+            ->where('status', 'active')
+            ->first();
+
+        if ($contract) {
+
+            $owner = $contract->owner;
+
+            if (
+                $owner &&
+                $owner->fcm_token
+            ) {
+
+                $firebase =
+                    new FirebaseNotificationService();
+
+                $firebase->sendNotification(
+                    $owner->fcm_token,
+                    'Permintaan Perubahan Data',
+                    'Terdapat permintaan perubahan data penyewa baru.'
+                );
+            }
+        }
 
         return response()->json([
             'message' => 'Request submitted, waiting approval'
