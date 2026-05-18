@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->decimal('amount', 12, 2);
             $table->date('payment_date');
             $table->date('due_date')->nullable();
-            $table->enum('status', ['pending', 'paid', 'failed', 'expired', 'cancelled'])->default('pending');
+            $table->enum('status', ['pending', 'paid', 'failed', 'cancelled'])->default('pending');
             $table->string('midtrans_order_id')->nullable()->unique();
             $table->string('midtrans_transaction_id')->nullable()->unique();
             $table->string('payment_type')->nullable();
