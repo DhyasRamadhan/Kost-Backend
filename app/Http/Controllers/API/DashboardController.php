@@ -107,7 +107,7 @@ class DashboardController extends Controller
             ];
         }
 
-        if ($availableRooms == 0) {
+        if ($totalRooms > 0 && $availableRooms == 0) {
             $alerts[] = [
                 'type' => 'full_occupancy',
                 'message' => 'Semua kamar sudah terisi'
